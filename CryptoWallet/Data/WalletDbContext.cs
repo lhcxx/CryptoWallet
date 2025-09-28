@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
-using CryptoWallet.Models;
+using CryptoWallet.Core.Models;
 
 namespace CryptoWallet.Data
 {
@@ -33,10 +33,11 @@ namespace CryptoWallet.Data
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id).IsRequired();
                 entity.Property(e => e.Name).IsRequired().HasMaxLength(100);
-                entity.Property(e => e.Email).IsRequired().HasMaxLength(255);
+                entity.Property(e => e.Password).IsRequired().HasMaxLength(255);
                 entity.Property(e => e.CreatedAt).IsRequired();
+                entity.Property(e => e.Role).IsRequired();
                 
-                entity.HasIndex(e => e.Email).IsUnique();
+                entity.HasIndex(e => e.Name).IsUnique();
             });
 
             // Wallet configuration

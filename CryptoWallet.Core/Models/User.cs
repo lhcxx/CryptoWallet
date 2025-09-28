@@ -1,20 +1,20 @@
 using System;
 
-namespace CryptoWallet.Models
+namespace CryptoWallet.Core.Models
 {
     public class User
     {
         public string Id { get; set; }
         public string Name { get; set; }
-        public string Email { get; set; }
+        public string Password { get; set; }
         public DateTime CreatedAt { get; set; }
         public UserRole Role { get; set; }
 
-        public User(string name, string email, UserRole role = UserRole.User)
+        public User(string name, string password, UserRole role = UserRole.User)
         {
             Id = Guid.NewGuid().ToString();
             Name = name;
-            Email = email;
+            Password = password;
             CreatedAt = DateTime.UtcNow;
             Role = role;
         }

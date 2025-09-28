@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace CryptoWallet.Models
+namespace CryptoWallet.Core.Models
 {
     public class Wallet
     {

@@ -2,7 +2,8 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
-using CryptoWallet.Models;
+using CryptoWallet.Core.Models;
+using CryptoWallet.Core.Services;
 using CryptoWallet.Services;
 using CryptoWallet.Data;
 using CryptoWallet.Configuration;
@@ -78,7 +79,7 @@ namespace CryptoWallet
         {
             Console.WriteLine("Please select an option:");
             Console.WriteLine("1. Create new user");
-            Console.WriteLine("2. Login with email");
+            Console.WriteLine("2. Login with name and password");
             Console.WriteLine("3. Exit");
             Console.Write("Enter your choice (1-3): ");
 
@@ -189,15 +190,15 @@ namespace CryptoWallet
             Console.Write("Enter your name: ");
             var name = Console.ReadLine();
 
-            Console.Write("Enter your email: ");
-            var email = Console.ReadLine();
+            Console.Write("Enter your password: ");
+            var password = Console.ReadLine();
 
             try
             {
                 using var scope = _serviceProvider.CreateScope();
                 var userService = scope.ServiceProvider.GetRequiredService<UserService>();
                 
-                var user = await userService.CreateUserAsync(name, email);
+                var user = await userService.CreateUserAsync(name, password);
                 _currentUser = user;
                 Console.WriteLine($"User created successfully! Your user ID is: {user.Id}");
                 Console.WriteLine("Press any key to continue...");
@@ -213,16 +214,19 @@ namespace CryptoWallet
 
         private static async Task LoginUser()
         {
-            Console.Write("Enter your email: ");
-            var email = Console.ReadLine();
+            Console.Write("Enter your name: ");
+            var name = Console.ReadLine();
+
+            Console.Write("Enter your password: ");
+            var password = Console.ReadLine();
 
             try
             {
                 using var scope = _serviceProvider.CreateScope();
                 var userService = scope.ServiceProvider.GetRequiredService<UserService>();
                 
-                var user = await userService.GetUserByEmailAsync(email);
-                if (user != null)
+                var user = await userService.GetUserByNameAsync(name);
+                if (user != null && user.Password == password)
                 {
                     _currentUser = user;
                     Console.WriteLine($"Welcome back, {user.Name}!");
@@ -231,7 +235,7 @@ namespace CryptoWallet
                 }
                 else
                 {
-                    Console.WriteLine("User not found. Please check your email or create a new account.");
+                    Console.WriteLine("Invalid name or password. Please check your credentials or create a new account.");
                     Console.WriteLine("Press any key to continue...");
                     Console.ReadKey();
                 }
@@ -354,7 +358,7 @@ namespace CryptoWallet
                 for (int i = 0; i < otherUsers.Count; i++)
                 {
                     var roleText = otherUsers[i].Role == UserRole.Admin ? " (Admin)" : "";
-                    Console.WriteLine($"{i + 1}. {otherUsers[i].Name}{roleText} ({otherUsers[i].Email})");
+                    Console.WriteLine($"{i + 1}. {otherUsers[i].Name}{roleText}");
                 }
 
                 Console.Write("Select user to send money to (enter number): ");
@@ -457,7 +461,7 @@ namespace CryptoWallet
                         var wallet = await walletService.GetWalletByUserIdAsync(user.Id);
                         var balance = wallet?.Balance ?? 0;
                         var roleText = user.Role == UserRole.Admin ? " (Admin)" : "";
-                        Console.WriteLine($"Name: {user.Name}{roleText} | Email: {user.Email} | Balance: ${balance:F2}");
+                        Console.WriteLine($"Name: {user.Name}{roleText} | Balance: ${balance:F2}");
                     }
                 }
             }
